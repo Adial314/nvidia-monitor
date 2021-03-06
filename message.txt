@@ -1,0 +1,30 @@
+To: seaborn.dev@gmail.com
+Subject: Seaborns-Mini.ngs.local GPU Status Update
+Content-Type: text/html
+MIME-Version: 1.0
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>GPU Status</title>
+</head>
+<body>
+
+	<h3>Seaborns-Mini.ngs.local GPU Status Update</h3>
+	<p>
+		<p style="color:red">Alert: Your GPU is practically barbequing in your rack.</p>
+
+		[2021-03-04 @ 13:32:39] <br>
+		Utilization: 0 % <br>
+		Temperature: 58 C <br>
+		Fan: 0 % <br>
+		Power: 1 / 250 W <br>
+		Memory: 0 / 11019 MiB <br>
+	</p>
+
+<!-- Arguments order: 
+	 hostname, alert_message, year, month, day, time, utilization, temp, fan, power_used, power_max, memory_used, memory_max
+-->
+
+</body>
+</html>
