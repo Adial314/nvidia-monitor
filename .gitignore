@@ -1,3 +1,6 @@
+# Ignore .ipynb for releases
+*.ipynb
+
 # Email messages
 message.txt
 
