@@ -1,5 +1,7 @@
-# Random unrelated file
-cool_sh*t.py
+# 
+
+# Logfiles
+gpu_log.*
 
 # IPYNB Caches
 __pycache__
