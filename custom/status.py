@@ -1,9 +1,13 @@
 import os
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
 
 class Status(object):
     __name__ = "Status"
     
-    def __init__(self, txt_logfile, csv_logfile, debug=False):
+    def __init__(self, txt_logfile, csv_logfile, limits=dict(), recipient=None, debug=False):
         __func__ = "__init__"
         self.txt_logfile = txt_logfile
         self.csv_logfile = csv_logfile
@@ -20,7 +24,60 @@ class Status(object):
         self.memory_max = self._parse_memory_term(self._get_raw_status_data().split())[1]
         self.power_used = self._parse_power_term(self._get_raw_status_data().split())[0]
         self.power_max = self._parse_power_term(self._get_raw_status_data().split())[1]
+        self.limits = limits
+        self.recipient = recipient
 #         self._parse_raw_status_data(self._get_raw_status_data())
+
+    def update(self):
+        self.day = self._parse_day_term(self._get_raw_status_data().split())
+        self.month = self._parse_month_term(self._get_raw_status_data().split())
+        self.year = self._parse_year_term(self._get_raw_status_data().split())
+        self.temperature = self._parse_temperature_term(self._get_raw_status_data().split())
+        self.time = self._parse_time_term(self._get_raw_status_data().split())
+        self.fan = self._parse_fan_term(self._get_raw_status_data().split())
+        self.utilization = self._parse_utilization_term(self._get_raw_status_data().split())
+        self.memory_used = self._parse_memory_term(self._get_raw_status_data().split())[0]
+        self.memory_max = self._parse_memory_term(self._get_raw_status_data().split())[1]
+        self.power_used = self._parse_power_term(self._get_raw_status_data().split())[0]
+        self.power_max = self._parse_power_term(self._get_raw_status_data().split())[1]
+        self.write_status_to_logfiles()
+        self.check_limits()
+        
+    def check_limits(self):
+        for limit in self.limits.keys():
+            if limit == "temperature":
+                if int(self.temperature) > int(self.limits["temperature"]):
+                    self.send_alert("temperature")
+                else:
+                    continue
+            else:
+                continue
+
+    def send_alert(self, trigger):
+        subject = "{} GPU Status Update".format(self.hostname)
+        with open("templates/body.html") as file:
+            body = file.read()
+            file.close()
+        if trigger == "temperature":
+            alert_message = f"GPU core temperature {self.temperature}C exceeded set" \
+                            f" limitation {self.limits['temperature']}C."
+        else:
+            alert_message = ""
+        body = body.format(self.hostname, alert_message,
+                           self.year, self.month, self.day,
+                           self.time, self.utilization,
+                           self.temperature, self.fan,
+                           self.power_used, self.power_max,
+                           self.memory_used, self.memory_max)
+        with open("templates/email.txt", "r") as file:
+            email = file.read()
+            file.close()
+        email = email.format(self.recipient, subject, body)
+        with open("message.txt", "w") as file:
+            file.write(email)
+            file.close
+        msg_status = os.popen(f"sendmail -vt < message.txt").read()
+        return msg_status
         
     def write_status_to_logfiles(self):
         self._write_status_to_csv_logfile()
@@ -64,7 +121,7 @@ Thu Mar  4 13:32:39 2021
 | Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
 |===============================+======================+======================|
 |   0  GeForce RTX 208...  Off  | 00000000:09:00.0 Off |                  N/A |
-|  0%   58C    P0     1W / 250W |      0MiB / 11019MiB |      0%      Default |
+|  0%   95C    P0     1W / 250W |      0MiB / 11019MiB |      0%      Default |
 +-------------------------------+----------------------+----------------------+
                                                                                
 +-----------------------------------------------------------------------------+
@@ -152,21 +209,6 @@ Thu Mar  4 13:32:39 2021
                 if status_terms[term_i-1] != status_terms[term_i-2]:
                     utilization = status_term.split("%")[0]
         return utilization
-    
-#     def _parse_raw_status_data(self, raw_status_data):
-#         __func__ = "_parse_raw_status_data"
-#         status_terms = raw_status_data.split()
-#         self.day = self._parse_day_term(status_terms)
-#         self.month = self._parse_month_term(status_terms)
-#         self.year = self._parse_year_term(status_terms)
-#         self.temperature = self._parse_temperature_term(status_terms)
-#         self.time = self._parse_time_term(status_terms)
-#         self.fan = self._parse_fan_term(status_terms)
-#         self.utilization = self._parse_utilization_term(status_terms)
-#         self.memory_used = self._parse_memory_term(status_terms)[0]
-#         self.memory_max = self._parse_memory_term(status_terms)[1]
-#         self.power_used = self._parse_power_term(status_terms)[0]
-#         self.power_max = self._parse_power_term(status_terms)[1]
         
     def _format_txt_log_entry(self):
         __func__ = "_format_txt_log_entry"
