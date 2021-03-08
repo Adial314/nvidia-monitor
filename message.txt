@@ -12,11 +12,11 @@ MIME-Version: 1.0
 
 	<h3>Seaborns-Mini.ngs.local GPU Status Update</h3>
 	<p>
-		<p style="color:red">Alert: Your GPU is practically barbequing in your rack.</p>
+		<p style="color:red">Alert: GPU core temperature 95C exceeded set limitation 85C.</p>
 
 		[2021-03-04 @ 13:32:39] <br>
 		Utilization: 0 % <br>
-		Temperature: 58 C <br>
+		Temperature: 95 C <br>
 		Fan: 0 % <br>
 		Power: 1 / 250 W <br>
 		Memory: 0 / 11019 MiB <br>
