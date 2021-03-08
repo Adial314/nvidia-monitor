@@ -1,0 +1,6 @@
+# Random unrelated file
+cool_sh*t.py
+
+# IPNB Caches
+*/__pycache__
+*/.ipynb_checkpoints
